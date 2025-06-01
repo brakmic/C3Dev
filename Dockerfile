@@ -33,6 +33,7 @@ RUN apt update && apt install -y --no-install-recommends \
     gcc-14 \
     g++-14 \
     cmake \
+    clang-format \
     ninja-build \
     make \
     git \
