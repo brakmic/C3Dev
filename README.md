@@ -1,4 +1,4 @@
-# C3Dev - C3 Programming Language Development Container
+# C3 Programming Language Development Container
 
 A Docker development environment for the [C3 programming language](https://c3-lang.org/), built on Ubuntu 24.04.
 
