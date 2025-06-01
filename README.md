@@ -1,4 +1,4 @@
-# C3 Programming Language Development Container
+# C3Dev - C3 Programming Language Development Container
 
 A Docker development environment for the [C3 programming language](https://c3-lang.org/), built on Ubuntu 24.04.
 
@@ -108,7 +108,7 @@ c3c compile hello.c3
 
 ```bash
 # Compile to WASM
-c3c compile --target wasm32 -o math.wasm math.c3
+c3c compile --target wasm32 -o math math.c3
 
 # Inspect WASM binary
 wasm2wat math.wasm -o math.wat
@@ -131,4 +131,24 @@ wasm-validate math.wasm
 
 | Variable | Value | Description |
 |----------|-------|-------------|
-| `PATH` | Includes c3 | C3 
+| `PATH` | Includes c3 | C3 compiler in PATH |
+| `EDITOR` | `nano` | Default text editor |
+| `TERM` | `xterm-256color` | Terminal capabilities |
+
+## Useful Aliases
+
+The container includes helpful aliases:
+
+```bash
+ll      # ls -la
+gs      # git status
+ga      # git add
+gp      # git push
+gl      # git log
+```
+
+## Related Projects
+
+- [C3 Language](https://c3-lang.org/) - The C3 programming language
+- [C3 Compiler](https://github.com/c3lang/c3c) - Official C3 compiler
+- [VS Code C3 Extension](https://marketplace.visualstudio.com/items?itemName=c3.vscode-c3) - C3 language support for VS Code
