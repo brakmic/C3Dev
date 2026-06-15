@@ -1,17 +1,19 @@
 # C3 Programming Language Development Container
 
-A Docker development environment for the [C3 programming language](https://c3-lang.org/), built on Ubuntu 24.04.
+A Docker development environment for the [C3 programming language](https://c3-lang.org/), built on Ubuntu 26.04 (Resolute Raccoon).
 
 ## What's Included
 
 ### Core Development Tools
-- **C3 Compiler** - Latest stable release with LSP support
-- **GCC 14** - Modern C/C++ compiler (set as default)
-- **Node.js 22** - JavaScript runtime with npm, yarn, and TypeScript
+
+- **C3 Compiler** - Latest stable release (0.8.1) with LSP support
+- **GCC 15** - Modern C/C++ compiler (system default)
+- **Node.js 24** - JavaScript runtime with npm, yarn, and TypeScript
 - **Git & Git LFS** - Version control with large file support
 - **Docker** - Container runtime
 
 ### Development Utilities
+
 - **WebAssembly Tools** (WABT) - `wasm2wat`, `wat2wasm`, `wasm-validate`
 - **Build Tools** - CMake, Ninja, Make
 - **Debugging** - GDB, Valgrind, Strace
@@ -19,6 +21,7 @@ A Docker development environment for the [C3 programming language](https://c3-la
 - **File Management** - lsd (modern ls), nano with syntax highlighting
 
 ### VS Code Integration
+
 - Pre-configured C3 language extension
 - Optimized settings for C3 development
 - Dev container support with proper user permissions
@@ -58,7 +61,7 @@ docker run -it --rm \
 }
 ```
 
-2. **Open in VS Code**:
+1. **Open in VS Code**:
    - Install the "Dev Containers" extension
    - Open Command Palette (`Ctrl+Shift+P`)
    - Run: "Dev Containers: Reopen in Container"
@@ -66,6 +69,7 @@ docker run -it --rm \
 ## Building from Source
 
 ### Prerequisites
+
 - Docker Engine 20.10+
 - 4GB+ available disk space
 
@@ -85,10 +89,10 @@ docker build --build-arg NONROOT_USER=myuser -t c3dev-local .
 
 ### Build Arguments
 
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `NONROOT_USER` | `c3dev` | Non-root username |
-| `NODE_VERSION` | `22` | Node.js major version |
+| Argument       | Default | Description           |
+|----------------|---------|-----------------------|
+| `NONROOT_USER` | `c3dev` | Non-root username     |
+| `NODE_VERSION` | `24`    | Node.js major version |
 
 ## Usage Examples
 
@@ -99,7 +103,7 @@ docker build --build-arg NONROOT_USER=myuser -t c3dev-local .
 c3c --version
 
 # Compile a simple program
-echo 'import std::io; fn void main() { io::printn("Hello, C3!"); }' > hello.c3
+echo 'module hello; import std::io; fn void main() { io::printn("Hello, C3!"); }' > hello.c3
 c3c compile hello.c3
 ./hello
 ```
@@ -117,7 +121,7 @@ wasm-validate math.wasm
 
 ## Directory Structure
 
-```
+```bash
 /home/c3dev/
 ├── bin/c3/          # C3 compiler binaries
 ├── .bashrc          # Shell configuration
@@ -129,11 +133,11 @@ wasm-validate math.wasm
 
 ## Environment Variables
 
-| Variable | Value | Description |
-|----------|-------|-------------|
-| `PATH` | Includes c3 | C3 compiler in PATH |
-| `EDITOR` | `nano` | Default text editor |
-| `TERM` | `xterm-256color` | Terminal capabilities |
+| Variable | Value            | Description           |
+|----------|------------------|-----------------------|
+| `PATH`   | Includes c3      | C3 compiler in PATH   |
+| `EDITOR` | `nano`           | Default text editor   |
+| `TERM`   | `xterm-256color` | Terminal capabilities |
 
 ## Useful Aliases
 
