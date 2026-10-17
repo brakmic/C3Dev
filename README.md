@@ -11,6 +11,8 @@ A Docker development environment for the [C3 programming language](https://c3-la
 - **Clang & LLD** - C compiler and linker for C interop and the experimental C backend added in C3 0.8.5
 - **Node.js 24** - Current LTS line (Krypton) with npm, yarn, and TypeScript
 - **Git & Git LFS** - Version control with large file support
+- **OpenSSH Client** - `ssh` and `ssh-keygen` for Git over SSH
+- **libmicrohttpd** - Development headers for the C3 web server example
 - **Docker** - Container runtime
 
 ### Development Utilities

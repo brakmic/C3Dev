@@ -43,6 +43,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     git \
     git-lfs \
+    openssh-client \
+    libmicrohttpd-dev \
     python3 \
     python3-pip \
     python3-venv \
