@@ -6,9 +6,10 @@ A Docker development environment for the [C3 programming language](https://c3-la
 
 ### Core Development Tools
 
-- **C3 Compiler** - Latest stable release (0.8.1) with LSP support
+- **C3 Compiler** - Pinned stable release (0.8.5_1) with LSP support, verified by SHA-256 at build time
 - **GCC 15** - Modern C/C++ compiler (system default)
-- **Node.js 24** - JavaScript runtime with npm, yarn, and TypeScript
+- **Clang & LLD** - C compiler and linker for C interop and the experimental C backend added in C3 0.8.5
+- **Node.js 24** - Current LTS line (Krypton) with npm, yarn, and TypeScript
 - **Git & Git LFS** - Version control with large file support
 - **Docker** - Container runtime
 
@@ -89,10 +90,14 @@ docker build --build-arg NONROOT_USER=myuser -t c3dev-local .
 
 ### Build Arguments
 
-| Argument       | Default | Description           |
-|----------------|---------|-----------------------|
-| `NONROOT_USER` | `c3dev` | Non-root username     |
-| `NODE_VERSION` | `24`    | Node.js major version |
+| Argument       | Default   | Description                       |
+|----------------|-----------|-----------------------------------|
+| `NONROOT_USER` | `c3dev`   | Non-root username                 |
+| `NODE_VERSION` | `24`      | Node.js major version (LTS line)  |
+| `C3_VERSION`   | `0.8.5_1` | C3 compiler release tag           |
+| `LSD_VERSION`  | `1.2.0`   | lsd release version               |
+
+`C3_SHA256` defaults to the published checksum of the pinned `c3-linux.tar.gz`; alongside the version, it must be updated when bumping `C3_VERSION`.
 
 ## Usage Examples
 
@@ -111,8 +116,8 @@ c3c compile hello.c3
 ### WebAssembly Development
 
 ```bash
-# Compile to WASM
-c3c compile --target wasm32 -o math math.c3
+# Compile a WASM library (no main entry point)
+c3c compile --target wasm32 --no-entry -o math math.c3
 
 # Inspect WASM binary
 wasm2wat math.wasm -o math.wat

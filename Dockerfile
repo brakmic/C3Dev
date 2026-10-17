@@ -5,12 +5,16 @@ FROM ubuntu:26.04
 ###############################################################################
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
 
 ###############################################################################
 # (2) Set build arguments
 ###############################################################################
 ARG NONROOT_USER=c3dev
 ARG NODE_VERSION=24
+ARG C3_VERSION=0.8.5_1
+ARG C3_SHA256=939135bc6fbe9d67bf3b19c08146b93ab10996718aafff692294ae6c0b3a3f88
+ARG LSD_VERSION=1.2.0
 ENV NONROOT_USER=${NONROOT_USER}
 ENV NODE_VERSION=${NODE_VERSION}
 ENV HOME=/home/${NONROOT_USER}
@@ -18,7 +22,7 @@ ENV HOME=/home/${NONROOT_USER}
 ###############################################################################
 # (3) Install base packages
 ###############################################################################
-RUN apt update && apt install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     wget \
     gnupg \
@@ -31,13 +35,17 @@ RUN apt update && apt install -y --no-install-recommends \
     unzip \
     build-essential \
     cmake \
+    clang \
     clang-format \
+    lld \
     ninja-build \
     make \
+    pkg-config \
     git \
     git-lfs \
     python3 \
     python3-pip \
+    python3-venv \
     bash-completion \
     locales \
     gdb \
@@ -60,7 +68,7 @@ RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
 # (5) Install Node.js
 ###############################################################################
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
-    && apt install -y nodejs \
+    && apt-get install -y nodejs \
     && npm install -g typescript tsx node-gyp yarn nodemon eslint \
     && rm -rf /var/lib/apt/lists/*
 
@@ -68,8 +76,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
 # (6) Install Docker
 ###############################################################################
 RUN install -m 0755 -d /etc/apt/keyrings \
-    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc \
+    && chmod a+r /etc/apt/keyrings/docker.asc \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" \
     | tee /etc/apt/sources.list.d/docker.list > /dev/null \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -85,7 +94,7 @@ RUN install -m 0755 -d /etc/apt/keyrings \
 # (7) Install lsd
 ###############################################################################
 RUN ARCH=$(dpkg --print-architecture) && \
-    wget "https://github.com/lsd-rs/lsd/releases/download/v1.2.0/lsd_1.2.0_${ARCH}.deb" -O /tmp/lsd.deb && \
+    wget "https://github.com/lsd-rs/lsd/releases/download/v${LSD_VERSION}/lsd_${LSD_VERSION}_${ARCH}.deb" -O /tmp/lsd.deb && \
     apt-get update && \
     apt-get install -y /tmp/lsd.deb && \
     rm /tmp/lsd.deb && \
@@ -103,7 +112,7 @@ RUN apt-get update && \
 ###############################################################################
 # (9) Install nano syntax highlighting
 ###############################################################################
-RUN git clone https://github.com/scopatz/nanorc.git /tmp/nanorc \
+RUN git clone --depth 1 https://github.com/scopatz/nanorc.git /tmp/nanorc \
     && mkdir -p /usr/share/nano-syntax \
     && cp -r /tmp/nanorc/* /usr/share/nano-syntax \
     && find /usr/share/nano-syntax -type f -name '*.nanorc' \
@@ -122,12 +131,14 @@ RUN useradd -m -s /bin/bash ${NONROOT_USER} \
 ###############################################################################
 # (11) Install C3 Compiler
 ###############################################################################
-RUN mkdir -p ${HOME}/bin && \
-    wget https://github.com/c3lang/c3c/releases/latest/download/c3-linux.tar.gz -O /tmp/c3.tar.gz && \
-    tar -xzf /tmp/c3.tar.gz -C ${HOME}/bin && \
-    rm /tmp/c3.tar.gz && \
-    chmod +x ${HOME}/bin/c3/c3c && \
-    chown -R ${NONROOT_USER}:${NONROOT_USER} ${HOME}/bin
+RUN mkdir -p ${HOME}/bin \
+    && wget "https://github.com/c3lang/c3c/releases/download/v${C3_VERSION}/c3-linux.tar.gz" -O /tmp/c3.tar.gz \
+    && echo "${C3_SHA256}  /tmp/c3.tar.gz" | sha256sum -c - \
+    && tar -xzf /tmp/c3.tar.gz -C ${HOME}/bin \
+    && rm /tmp/c3.tar.gz \
+    && chmod +x ${HOME}/bin/c3/c3c \
+    && chown -R ${NONROOT_USER}:${NONROOT_USER} ${HOME}/bin \
+    && ${HOME}/bin/c3/c3c --version
 
 ###############################################################################
 # (12) Set default shell to bash
@@ -182,9 +193,7 @@ RUN echo "include /usr/share/nano-syntax/*.nanorc" >> ${HOME}/.nanorc \
 ###############################################################################
 # (18) Add C3 compiler to PATH
 ###############################################################################
-RUN echo '' >> ${HOME}/.bashrc && \
-    echo '# Add C3 compiler to PATH' >> ${HOME}/.bashrc && \
-    echo 'export PATH="$HOME/bin/c3:$PATH"' >> ${HOME}/.bashrc
+ENV PATH=${HOME}/bin/c3:${PATH}
 
 ###############################################################################
 # (19) Customize terminal prompt
